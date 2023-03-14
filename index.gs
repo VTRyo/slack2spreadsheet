@@ -1,8 +1,10 @@
 function getMessageHistory() {
+  let STARTDATE = Date.parse("2023-3-12 00:00:00") / 1000
+  let ENDDATE = Date.parse("2023-3-14 00:00:00") / 1000
   let channelId = PropertiesService.getScriptProperties().getProperty('CHANNEL');
   let baseUrl = 'https://slack.com/api/conversations.history'
-  let url = baseUrl + "?channel=" + channelId;
-  
+  let url = baseUrl + "?channel=" + channelId + "?oldest=" + STARTDATE + "?latest=" + ENDDATE;
+
   let TOKEN = PropertiesService.getScriptProperties().getProperty('TOKEN');
   let options = {
     "method": "GET",
@@ -36,7 +38,7 @@ function getMessageHistory() {
 
         resultData.push(getOrgChannelName(attachment))
         resultData.push(getOrgLink(attachment))
-        resultData.push(dataParse(dataMessages[i]))
+        resultData.push(dateParse(dataMessages[i]))
       }
       // resultData [string]
       // ["image","text","channel","url","date"]
@@ -57,7 +59,7 @@ function getOrgText(attachmentData) {
 function getOrgLink(attachmentData) {
   return attachmentData.from_url
 }
-function dataParse(data) {
+function dateParse(data) {
   let date = new Date(data.ts * 1000);
   return date.toLocaleDateString("ja-JP")
 }
