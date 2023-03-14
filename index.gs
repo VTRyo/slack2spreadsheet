@@ -3,7 +3,7 @@ function getMessageHistory() {
   let ENDDATE = Date.parse("2023-3-14 00:00:00") / 1000
   let channelId = PropertiesService.getScriptProperties().getProperty('CHANNEL');
   let baseUrl = 'https://slack.com/api/conversations.history'
-  let url = baseUrl + "?channel=" + channelId + "?oldest=" + STARTDATE + "?latest=" + ENDDATE;
+  let url = baseUrl + "?channel=" + channelId + "&oldest=" + STARTDATE + "&latest=" + ENDDATE;
 
   let TOKEN = PropertiesService.getScriptProperties().getProperty('TOKEN');
   let options = {
