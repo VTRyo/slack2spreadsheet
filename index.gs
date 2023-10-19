@@ -1,6 +1,6 @@
 function getMessageHistory() {
-  let STARTDATE = Date.parse("2023-3-12 00:00:00") / 1000
-  let ENDDATE = Date.parse("2023-3-14 00:00:00") / 1000
+  let STARTDATE = Date.parse("2023-10-01 00:00:00") / 1000
+  let ENDDATE = Date.parse("2023-10-20 23:59:59") / 1000
   let channelId = PropertiesService.getScriptProperties().getProperty('CHANNEL');
   let baseUrl = 'https://slack.com/api/conversations.history'
   let url = baseUrl + "?channel=" + channelId + "&oldest=" + STARTDATE + "&latest=" + ENDDATE;
@@ -27,19 +27,22 @@ function getMessageHistory() {
           // filesが複数あればその分取得したかったが、それがスプシにあっても使いづらいので画像が複数あることだけわかるようにする
           resultData.push(getOrgFiles(attachment))
           if (attachment.hasOwnProperty("text")) {
-              resultData.push(getOrgText(attachment))
+              text = getOrgText(attachment)
+              resultData.push(removeLF(text))
           } else {
             resultData.push('')
           }
         } else {
           resultData.push('')
-          resultData.push(getOrgText(attachment))
+          text = getOrgText(attachment)
+          resultData.push(removeLF(text))
         }
 
         resultData.push(getOrgChannelName(attachment))
         resultData.push(getOrgLink(attachment))
         resultData.push(dateParse(dataMessages[i]))
       }
+
       // resultData [string]
       // ["image","text","channel","url","date"]
       writeToSheet(resultData)
@@ -63,6 +66,11 @@ function dateParse(data) {
   let date = new Date(data.ts * 1000);
   return date.toLocaleDateString("ja-JP")
 }
+// 改行が入っている内容はスペースに置き換える
+function removeLF(text) {
+  parseText = text.replace(/\r?\n/g, ' ')
+  return parseText
+}
 
 function writeToSheet(data) {
   const SHEET_ID = PropertiesService.getScriptProperties().getProperty('SHEET_ID')
@@ -70,5 +78,10 @@ function writeToSheet(data) {
   var spreadSheet = SpreadsheetApp.openById(SHEET_ID);
   var sheet = spreadSheet.getSheetByName(SHEET_NAME);
 
-  sheet.appendRow(data)
+  try {
+    sheet.appendRow(data)
+  } catch(e) {
+    Logger.log("シート名が正しいか確認してください " + e)
+    Logger.log("シートIDが正しいか確認してください " + e)
+  }
 }
